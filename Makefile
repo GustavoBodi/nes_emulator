@@ -3,7 +3,7 @@ CONAN_TOOLCHAIN:= Release/generators/conan_toolchain.cmake
 .PHONY: clean test run
 
 all: build/$(CONAN_TOOLCHAIN)
-	cd build && \
+	@cd build && \
 	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$(CONAN_TOOLCHAIN) .. && \
 	cmake --build . && \
 	make && \
