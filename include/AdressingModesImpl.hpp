@@ -1,21 +1,22 @@
 #pragma once
 #include "AddressMode.hpp"
+#include "AddressingConcept.hpp"
 #include "Types.hpp"
 #include <cstdint>
 
 struct Immediate {
   AddressMode mode = AddressMode::Immediate;
 
-  inline uint8_t get_mem(uint8_t parameter) {
-    return parameter;
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint8_t parameter) {
+    return std::tuple(parameter, None);
   }
 };
 
 struct ZeroPage {
   AddressMode mode = AddressMode::ZeroPage;
 
-  inline uint8_t get_mem(uint8_t parameter) {
-    return parameter;
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint8_t parameter) {
+    return std::tuple(parameter, None);
   }
 };
 
@@ -24,8 +25,8 @@ struct ZeroPageX {
 
   inline ZeroPageX(RegisterX &reg): reg_x{reg} {}
 
-  inline uint8_t get_mem(uint8_t parameter) {
-    return parameter + reg_x.get_register();
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint8_t parameter) {
+    return std::tuple(parameter + reg_x.get_register(), None);
   }
 
 private:
@@ -37,8 +38,8 @@ struct ZeroPageY {
 
   inline ZeroPageY(RegisterY &reg): reg_y{reg} {}
 
-  inline uint8_t get_mem(uint8_t parameter) {
-    return parameter + reg_y.get_register();
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint8_t parameter) {
+    return std::tuple(parameter + reg_y.get_register(), None);
   }
 
 private:
@@ -50,8 +51,8 @@ struct Relative {
 
   inline Relative(ProgramCounter &pc): pc{pc} {}
 
-  inline uint8_t get_mem(int8_t parameter) {
-    return pc.get_register() + parameter;
+  inline std::tuple<uint8_t, AddressingBehaviour> get_mem(int8_t parameter) {
+    return std::tuple(pc.get_register() + parameter, None);
   }
 
 private:
@@ -62,8 +63,8 @@ private:
 struct Absolute {
   AddressMode mode = AddressMode::Absolute;
 
-  inline uint16_t get_mem(uint16_t parameter) {
-    return parameter;
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
+    return std::tuple(parameter, None);
   }
 };
 
@@ -72,8 +73,8 @@ struct AbsoluteX {
 
   inline AbsoluteX(RegisterX &reg): reg{reg} {}
 
-  inline uint16_t get_mem(uint16_t parameter) {
-    return parameter + reg.get_register();
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
+    return std::tuple(parameter + reg.get_register(), None);
   }
 
 private:
@@ -85,8 +86,8 @@ struct AbsoluteY {
 
   inline AbsoluteY(RegisterY &reg): reg{reg} {}
 
-  inline uint16_t get_mem(uint16_t parameter) {
-    return parameter + reg.get_register();
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
+    return std::tuple(parameter + reg.get_register(), None);
   }
 
 private:
@@ -98,9 +99,9 @@ struct Indirect {
 
   inline Indirect(Memory &mem): mem{mem} {}
 
-  inline uint16_t get_mem(uint16_t parameter) {
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
     uint16_t address = mem[parameter];
-    return address;
+    return std::tuple(address, None);
   }
 
 private:
@@ -112,9 +113,9 @@ struct IndexedIndirect {
 
   inline IndexedIndirect(Memory &mem, RegisterX &reg): mem{mem}, reg{reg} {}
 
-  inline uint16_t get_mem(uint16_t parameter) {
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
     uint16_t address = mem[parameter + reg.get_register()] % 0x100;
-    return address;
+    return std::tuple(address, None);
   }
 
 private:
@@ -127,9 +128,9 @@ struct IndirectIndexed {
 
   inline IndirectIndexed(Memory &mem, RegisterY &reg): mem{mem}, reg{reg} {}
 
-  inline uint16_t get_mem(uint16_t parameter) {
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
     uint16_t address = mem[parameter] + reg.get_register();
-    return address;
+    return std::tuple(address, None);
   }
 
 private:

@@ -15,7 +15,7 @@ public:
     return register_value;
   }
 
-  ~Register() = default;
+  inline ~Register() = default;
 private:
     T register_value { 0 };
 };

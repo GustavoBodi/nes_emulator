@@ -3,6 +3,7 @@
 #include <array>
 #include "Register.hpp"
 
+
 using RegisterX = Register<uint8_t>;
 using RegisterY = Register<uint8_t>;
 using ProcessorStatus = Register<uint8_t>;

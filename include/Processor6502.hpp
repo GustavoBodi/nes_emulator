@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <array>
 #include <stdexcept>
+#include "AdressingModesImpl.hpp"
 #include "Register.hpp"
 #include "Types.hpp"
 
@@ -50,8 +51,8 @@ public:
     return std::make_tuple(0xFFFE, 0xFFFF);
   }
 
-
   ~Processor6502() = default;
+
 private:
   Memory memory { 0 };
 
@@ -86,4 +87,28 @@ private:
   // Negative Flag: If the last operation yielded a result with bit 7 set to one.
   ProcessorStatus processor_status { 0 };
 
+  // This is the list of Addresssing Modes on the 6502
+  Immediate imm {};
+
+  ZeroPage zero_page {};
+
+  ZeroPageX zero_page_x { index_x };
+
+  ZeroPageY zero_page_y { index_y };
+
+  Relative relative { program_counter };
+
+  Absolute absolute {};
+
+  AbsoluteX absolute_x { index_x };
+
+  AbsoluteY absolute_y { index_y };
+
+  Indirect indirect { memory };
+
+  IndexedIndirect indexed_indirect { memory, index_x };
+
+  IndirectIndexed indirect_indexed { memory, index_y };
+
+  // This is the list of instructions for the processor
 };
