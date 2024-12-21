@@ -1,6 +1,7 @@
 #pragma once
 #include "AddressMode.hpp"
 #include "AddressingConcept.hpp"
+#include "Pages.hpp"
 #include "Types.hpp"
 #include <cstdint>
 
@@ -51,8 +52,13 @@ struct Relative {
 
   inline Relative(ProgramCounter &pc): pc{pc} {}
 
-  inline std::tuple<uint8_t, AddressingBehaviour> get_mem(int8_t parameter) {
-    return std::tuple(pc.get_register() + parameter, None);
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(int8_t parameter) {
+    uint16_t result = pc.get_register() + parameter;
+    AddressingBehaviour behaviour { None };
+    if (new_page<0x100>(pc.get_register(), result)) {
+      behaviour = PageCrossed;
+    }
+    return std::tuple(result, behaviour);
   }
 
 private:
@@ -74,7 +80,12 @@ struct AbsoluteX {
   inline AbsoluteX(RegisterX &reg): reg{reg} {}
 
   inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
-    return std::tuple(parameter + reg.get_register(), None);
+    uint16_t result = parameter + reg.get_register();
+    AddressingBehaviour behaviour { None };
+    if (new_page<0x100>(parameter, result)) {
+      behaviour = PageCrossed;
+    }
+    return std::tuple(result, behaviour);
   }
 
 private:
@@ -87,7 +98,12 @@ struct AbsoluteY {
   inline AbsoluteY(RegisterY &reg): reg{reg} {}
 
   inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
-    return std::tuple(parameter + reg.get_register(), None);
+    uint16_t result = parameter + reg.get_register();
+    AddressingBehaviour behaviour { None };
+    if (new_page<0x100>(parameter, result)) {
+      behaviour = PageCrossed;
+    }
+    return std::tuple(result, behaviour);
   }
 
 private:
