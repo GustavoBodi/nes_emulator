@@ -1,5 +1,6 @@
 [requires]
 sdl/2.30.9
+imgui/cci.20230105+1.89.2.docking
 [generators]
 CMakeDeps
 CMakeToolchain

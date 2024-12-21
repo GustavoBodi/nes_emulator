@@ -32,7 +32,7 @@ test: | build
 	cd build && \
 	cmake ../ && \
 	make && \
-	./tests-main
+	./UnitTests
 
 clean: 
 	rm -rf build/
