@@ -5,6 +5,7 @@
 #include <array>
 #include <stdexcept>
 #include "AdressingModesImpl.hpp"
+#include "ProgramStatusRegister.hpp"
 #include "Register.hpp"
 #include "Types.hpp"
 
@@ -25,10 +26,6 @@ public:
       throw std::invalid_argument("Offset greater than page size");
     }
     return page * 0x0100 + offset;
-  }
-
-  uint8_t get_x_register() {
-    return index_x.get_register();
   }
 
   uint16_t get_address_from_zero_page(uint16_t offset) {
@@ -85,7 +82,7 @@ private:
   // Break Command: BRK is executed and an interrupted generated to proccess it.
   // Overflow Flag: If the operationg yielded an invalid 2 complements result.
   // Negative Flag: If the last operation yielded a result with bit 7 set to one.
-  ProcessorStatus processor_status { 0 };
+  ProgramStatusRegister processor_status {};
 
   // This is the list of Addresssing Modes on the 6502
   Immediate imm {};

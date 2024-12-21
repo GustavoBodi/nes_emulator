@@ -1,12 +1,12 @@
 #pragma once
 #include <cstdint>
 #include <array>
+#include "ProgramStatusRegister.hpp"
 #include "Register.hpp"
-
 
 using RegisterX = Register<uint8_t>;
 using RegisterY = Register<uint8_t>;
-using ProcessorStatus = Register<uint8_t>;
+using ProcessorStatus = ProgramStatusRegister;
 using Accumulator = Register<uint8_t>;
 using StackPointer = Register<uint8_t>;
 using ProgramCounter = Register<uint16_t>;
