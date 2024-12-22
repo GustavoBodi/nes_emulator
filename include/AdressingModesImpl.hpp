@@ -27,7 +27,7 @@ struct ZeroPageX {
   inline ZeroPageX(RegisterX &reg): reg_x{reg} {}
 
   inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint8_t parameter) {
-    return std::tuple(parameter + reg_x.get_register(), None);
+    return std::tuple((parameter + reg_x.get_register()) % 0x100, None);
   }
 
 private:
@@ -40,7 +40,7 @@ struct ZeroPageY {
   inline ZeroPageY(RegisterY &reg): reg_y{reg} {}
 
   inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint8_t parameter) {
-    return std::tuple(parameter + reg_y.get_register(), None);
+    return std::tuple((parameter + reg_y.get_register()) % 0x100, None);
   }
 
 private:
@@ -116,7 +116,7 @@ struct Indirect {
   inline Indirect(Memory &mem): mem{mem} {}
 
   inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
-    uint16_t address = mem[parameter];
+    uint16_t address = static_cast<uint16_t>(mem[parameter]) + (static_cast<uint16_t>(mem[parameter + 1]) << 8);
     return std::tuple(address, None);
   }
 
@@ -130,7 +130,9 @@ struct IndexedIndirect {
   inline IndexedIndirect(Memory &mem, RegisterX &reg): mem{mem}, reg{reg} {}
 
   inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
-    uint16_t address = mem[parameter + reg.get_register()] % 0x100;
+    uint8_t page_address_first_byte = static_cast<uint8_t>((static_cast<uint16_t>(parameter) + static_cast<uint16_t>(reg.get_register())) % 0x100);
+    uint8_t page_address_second_byte = static_cast<uint8_t>((static_cast<uint16_t>(parameter) + static_cast<uint16_t>(reg.get_register()) + 1) % 0x100);
+    uint16_t address = (mem[page_address_first_byte] + (mem[page_address_second_byte] << 8));
     return std::tuple(address, None);
   }
 
@@ -144,9 +146,15 @@ struct IndirectIndexed {
 
   inline IndirectIndexed(Memory &mem, RegisterY &reg): mem{mem}, reg{reg} {}
 
-  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint16_t parameter) {
-    uint16_t address = mem[parameter] + reg.get_register();
-    return std::tuple(address, None);
+  inline std::tuple<uint16_t, AddressingBehaviour> get_mem(uint8_t parameter) {
+    AddressingBehaviour behaviour = None;
+    uint8_t page_address_first_byte = mem[parameter];
+    uint8_t page_address_second_byte = mem[(parameter + 1) % 0x100];
+    uint16_t address = static_cast<uint16_t>(page_address_first_byte) + static_cast<uint16_t>(page_address_second_byte << 8) + static_cast<uint16_t>(reg.get_register());
+    if (new_page<0x100>(parameter, address)) {
+      behaviour = PageCrossed;
+    }
+    return std::tuple(address, behaviour);
   }
 
 private:

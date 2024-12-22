@@ -214,6 +214,14 @@ TEST_CASE("ZeroPageX Addressing mode with 0x10 in registerX", "[addressing_mode]
   REQUIRE(std::get<1>(zero.get_mem(address)) == None);
 }
 
+TEST_CASE("ZeroPageX wrapping test", "[addressing_mode]") {
+  RegisterX register_x {0xF1};
+  auto zero = ZeroPageX(register_x);
+  uint8_t address = 0xFA;
+  REQUIRE(std::get<0>(zero.get_mem(address)) == 0xEB);
+  REQUIRE(std::get<1>(zero.get_mem(address)) == None);
+}
+
 TEST_CASE("ZeroPageY Addressing mode with 0 in registerY", "[addressing_mode]") {
   RegisterX register_y { 0 };
   auto zero = ZeroPageY(register_y);
@@ -227,6 +235,14 @@ TEST_CASE("ZeroPageY Addressing mode with 0x10 in registerY", "[addressing_mode]
   auto zero = ZeroPageY(register_y);
   uint8_t address = 0xBA;
   REQUIRE(std::get<0>(zero.get_mem(address)) == 0xCA);
+  REQUIRE(std::get<1>(zero.get_mem(address)) == None);
+}
+
+TEST_CASE("ZeroPageY wrapping test", "[addressing_mode]") {
+  RegisterY register_y {0xF1};
+  auto zero = ZeroPageY(register_y);
+  uint8_t address = 0xFA;
+  REQUIRE(std::get<0>(zero.get_mem(address)) == 0xEB);
   REQUIRE(std::get<1>(zero.get_mem(address)) == None);
 }
 
@@ -287,4 +303,43 @@ TEST_CASE("AbsoluteY addressing_mode in different pages", "[addressing_mode]") {
   auto abs_y = AbsoluteY(reg_y);
   REQUIRE(std::get<0>(abs_y.get_mem(0xF0)) == 0x10F);
   REQUIRE(std::get<1>(abs_y.get_mem(0xF0)) == PageCrossed);
+}
+
+TEST_CASE("Indirect Addressing of memory", "[addressing_mode]") {
+  Memory mem { 0 };
+  mem[0x120] = 0xFC;
+  mem[0x121] = 0xBA;
+  Indirect ind { mem };
+  REQUIRE(std::get<0>(ind.get_mem(0x0120)) == 0xBAFC);
+  REQUIRE(std::get<1>(ind.get_mem(0x0120)) == None);
+}
+
+TEST_CASE("Indexed Indirect Addressing of Memory", "[addressing_mode]") {
+  Memory mem { 0 };
+  auto reg_x = RegisterX { 0x10 };
+  mem[0xFA] = 0xAA;
+  mem[0xFB] = 0xCD;
+  IndexedIndirect ind {mem, reg_x};
+  REQUIRE(std::get<0>(ind.get_mem(0xEA)) == 0xCDAA);
+  REQUIRE(std::get<1>(ind.get_mem(0xEA)) == None);
+}
+
+TEST_CASE("Indirect Indexed Addressing of Memory with page crossing", "[addressing_mode]") {
+  Memory mem { 0 };
+  auto reg_y = RegisterY { 0x10 };
+  mem[0xFA] = 0xAA;
+  mem[0xFB] = 0xCD;
+  IndirectIndexed ind { mem, reg_y };
+  REQUIRE(std::get<0>(ind.get_mem(0xFA)) == 0xCDBA);
+  REQUIRE(std::get<1>(ind.get_mem(0xFA)) == PageCrossed);
+}
+
+TEST_CASE("Indirect Indexed Addressing of Memory without page crossing", "[addressing_mode]") {
+  Memory mem { 0 };
+  auto reg_y = RegisterY { 0x10 };
+  mem[0xFA] = 0xAA;
+  mem[0xFB] = 0x00;
+  IndirectIndexed ind { mem, reg_y };
+  REQUIRE(std::get<0>(ind.get_mem(0xFA)) == 0x00BA);
+  REQUIRE(std::get<1>(ind.get_mem(0xFA)) == None);
 }
