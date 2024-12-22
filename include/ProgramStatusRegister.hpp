@@ -27,7 +27,7 @@ public:
 private:
   template <StatusFlags flag>
   constexpr StatusMask calculate_mask() const {
-    constexpr uint8_t mask = 0x01 << flag;
+    constexpr uint8_t mask = 0b01 << flag;
     return mask;
   }
 
