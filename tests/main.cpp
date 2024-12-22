@@ -9,6 +9,54 @@ int main(int argc, char **argv) {
   int result = Catch::Session().run(argc, argv);
 }
 
+TEST_CASE("Register constructor default construction", "[generic_register]") {
+  Register<uint8_t> reg { 0 };
+  REQUIRE(reg.get_register() == 0);
+}
+
+TEST_CASE("Register constructor with value", "[generic_register]") {
+  Register<uint8_t> reg { 30 };
+  REQUIRE(reg.get_register() == 30);
+}
+
+TEST_CASE("Register with set value", "[generic_register]") {
+  Register<uint8_t> reg { 30 };
+  reg.set_register(10);
+  REQUIRE(reg.get_register() == 10);
+}
+
+TEST_CASE("Register with multiple set values", "[generic_register]") {
+  Register<uint8_t> reg { 30 };
+  reg.set_register(10);
+  reg.set_register(20);
+  reg.set_register(50);
+  REQUIRE(reg.get_register() == 50);
+}
+
+TEST_CASE("New offset in the same zero page", "[new_page_calculation]") {
+  REQUIRE(new_page<0x100>(0x00, 0xFF) == false);
+  REQUIRE(new_page<0x100>(0x00, 0xAA) == false);
+  REQUIRE(new_page<0x100>(0xFF, 0xFF) == false);
+}
+
+TEST_CASE("New offset in different page compared to zero page", "[new_page_calculation]") {
+  REQUIRE(new_page<0x100>(0x00, 0x100) == true);
+  REQUIRE(new_page<0x100>(0x00, 0x10A) == true);
+  REQUIRE(new_page<0x100>(0xFF, 0x1FF) == true);
+}
+
+TEST_CASE("New offset in the same first page", "[new_page_calculation]") {
+  REQUIRE(new_page<0x100>(0x100, 0x1FF) == false);
+  REQUIRE(new_page<0x100>(0x110, 0x1AA) == false);
+  REQUIRE(new_page<0x100>(0x1F0, 0x1FF) == false);
+}
+
+TEST_CASE("New offset in different page than second page", "[new_page_calculation]") {
+  REQUIRE(new_page<0x100>(0x100, 0xFF) == true);
+  REQUIRE(new_page<0x100>(0x110, 0xEAA) == true);
+  REQUIRE(new_page<0x100>(0x1F0, 0x2FF) == true);
+}
+
 TEST_CASE("Starting program status flags all zero", "[program_status_flags]") {
   ProgramStatusRegister registers {};
   REQUIRE(registers.get_flag<Carry>() == 0);

@@ -10,12 +10,6 @@ public:
   ProgramStatusRegister() {}
 
   template <StatusFlags flag>
-  constexpr StatusMask calculate_mask() const {
-    constexpr uint8_t mask = 0x01 << flag;
-    return mask;
-  }
-
-  template <StatusFlags flag>
   inline StatusRegister get_flag() {
     return (statusRegister & calculate_mask<flag>()) >> flag;
   }
@@ -31,5 +25,11 @@ public:
   }
 
 private:
+  template <StatusFlags flag>
+  constexpr StatusMask calculate_mask() const {
+    constexpr uint8_t mask = 0x01 << flag;
+    return mask;
+  }
+
   StatusRegister statusRegister { 0 };
 };
