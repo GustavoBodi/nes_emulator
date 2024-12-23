@@ -28,7 +28,8 @@ struct ADC {
   ADC(ProcessorStatus &status, Accumulator &acc, Memory &mem): acc{acc}, status{status}, mem{mem} {}
 
   void execute(int16_t parameter) {
-    uint16_t result = static_cast<uint16_t>(mem[parameter]) + static_cast<uint16_t>(acc.get_register()) + static_cast<uint16_t>(status.get_flag<Carry>());
+    uint16_t result = static_cast<uint16_t>(mem[parameter]) +
+                      static_cast<uint16_t>(acc.get_register()) + static_cast<uint16_t>(status.get_flag<Carry>());
   }
 
 private:

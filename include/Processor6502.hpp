@@ -51,7 +51,7 @@ public:
   ~Processor6502() = default;
 
 private:
-  Memory memory { 0 };
+  Memory memory { };
 
   // The program counter points to thenext instruction
   // Modifiable by jump, relative branch, subroutine, return from subroutine
