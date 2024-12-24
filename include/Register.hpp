@@ -10,8 +10,12 @@ public:
     register_value = param;
   }
 
-  inline T get_register() {
+  inline T &get_register() {
     return register_value;
+  }
+
+  inline void operator=(T value) {
+    register_value = value;
   }
 
   inline ~Register() = default;
